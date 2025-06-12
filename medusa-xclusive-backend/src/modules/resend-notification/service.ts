@@ -42,7 +42,7 @@ class ResendNotificationProviderService extends AbstractNotificationProviderServ
 
     const { data, error } = await this.resend.emails.send({
       from: this.options.fromEmail,
-      replyTo: this.options.replyToEmail,
+      reply_to: this.options.replyToEmail,
       to: [toEmail ? toEmail : this.options.toEmail],
       subject: subject,
       react: body

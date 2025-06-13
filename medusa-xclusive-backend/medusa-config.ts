@@ -103,7 +103,7 @@ module.exports = defineConfig({
     redisUrl: process.env.REDIS_URL,
   },
   admin: {
-    backendUrl: process.env.BACKEND_URL || 'http://localhost:9000',
+    backendUrl: process.env.BACKEND_URL || 'https://xclusive-medusa-production.up.railway.app',
     disable: process.env.DISABLE_MEDUSA_ADMIN === 'true',
   },
   modules: {

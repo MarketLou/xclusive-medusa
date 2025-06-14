@@ -93,14 +93,14 @@ module.exports = defineConfig({
   projectConfig: {
     databaseUrl: process.env.DATABASE_URL,
     redisUrl: process.env.REDIS_URL,
-    workerMode: process.env.MEDUSA_WORKER_MODE as 'shared' | 'worker' | 'server',
-    http: {
-      storeCors: process.env.STORE_CORS || '',
-      adminCors: process.env.ADMIN_CORS || '',
-      authCors: process.env.AUTH_CORS || '',
-      jwtSecret: process.env.JWT_SECRET || 'supersecret',
-      cookieSecret: process.env.COOKIE_SECRET || 'supersecret',
-    },
+    workerMode: process.env.MEDUSA_WORKER_MODE,
+
+    // CORRECTED: Moved from the 'http' object and changed to snake_case
+    store_cors: process.env.STORE_CORS || '',
+    admin_cors: process.env.ADMIN_CORS || '',
+    auth_cors:  process.env.AUTH_CORS  || '',
+    jwt_secret:  process.env.JWT_SECRET  || 'supersecret',
+    cookie_secret: process.env.COOKIE_SECRET || 'supersecret',
   },
   admin: {
     backendUrl: process.env.BACKEND_URL || 'https://xclusive-medusa-production.up.railway.app',

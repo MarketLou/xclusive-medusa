@@ -92,6 +92,7 @@ const modules = {
 module.exports = defineConfig({
   projectConfig: {
     databaseUrl: process.env.DATABASE_URL,
+    redisUrl: process.env.REDIS_URL,
     workerMode: process.env.MEDUSA_WORKER_MODE as 'shared' | 'worker' | 'server',
     http: {
       storeCors: process.env.STORE_CORS || '',
@@ -100,7 +101,6 @@ module.exports = defineConfig({
       jwtSecret: process.env.JWT_SECRET || 'supersecret',
       cookieSecret: process.env.COOKIE_SECRET || 'supersecret',
     },
-    redisUrl: process.env.REDIS_URL,
   },
   admin: {
     backendUrl: process.env.BACKEND_URL || 'https://xclusive-medusa-production.up.railway.app',

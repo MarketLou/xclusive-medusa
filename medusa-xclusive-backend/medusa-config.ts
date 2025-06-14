@@ -113,10 +113,4 @@ const config = defineConfig({
   },
 });
 
-// Manually add the snake_case properties that the runtime server needs for CORS
-config.projectConfig.store_cors = process.env.STORE_CORS || '';
-config.projectConfig.admin_cors = process.env.ADMIN_CORS || '';
-config.projectConfig.auth_cors = process.env.AUTH_CORS || '';
-
-// Export the final, modified config
 module.exports = config;

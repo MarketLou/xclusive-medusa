@@ -89,6 +89,7 @@ const modules = {
   },
 };
 
+// Define the configuration in the format TypeScript expects
 const config = defineConfig({
   projectConfig: {
     databaseUrl: process.env.DATABASE_URL,

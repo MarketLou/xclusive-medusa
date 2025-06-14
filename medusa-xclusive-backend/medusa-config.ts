@@ -93,7 +93,7 @@ module.exports = defineConfig({
   projectConfig: {
     databaseUrl: process.env.DATABASE_URL,
     redisUrl: process.env.REDIS_URL,
-    workerMode: process.env.MEDUSA_WORKER_MODE,
+    workerMode: process.env.MEDUSA_WORKER_MODE as 'shared' | 'worker' | 'server',
 
     // CORRECTED: Moved from the 'http' object and changed to snake_case
     store_cors: process.env.STORE_CORS || '',

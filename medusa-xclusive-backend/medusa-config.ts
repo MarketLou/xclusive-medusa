@@ -89,13 +89,12 @@ const modules = {
   },
 };
 
-module.exports = defineConfig({
+// Define the configuration in the format TypeScript expects
+const config = defineConfig({
   projectConfig: {
     databaseUrl: process.env.DATABASE_URL,
     redisUrl: process.env.REDIS_URL,
     workerMode: process.env.MEDUSA_WORKER_MODE as 'shared' | 'worker' | 'server',
-    
-    // CORRECT STRUCTURE: camelCase inside the http object
     http: {
       storeCors: process.env.STORE_CORS || '',
       adminCors: process.env.ADMIN_CORS || '',
@@ -113,3 +112,11 @@ module.exports = defineConfig({
     ...dynamicModules,
   },
 });
+
+// Manually add the snake_case properties that the runtime server needs for CORS
+config.projectConfig.store_cors = process.env.STORE_CORS || '';
+config.projectConfig.admin_cors = process.env.ADMIN_CORS || '';
+config.projectConfig.auth_cors = process.env.AUTH_CORS || '';
+
+// Export the final, modified config
+module.exports = config;

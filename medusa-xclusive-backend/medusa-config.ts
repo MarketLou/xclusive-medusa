@@ -19,7 +19,7 @@ if (isStripeConfigured) {
           id: 'stripe',
           options: {
             apiKey: stripeApiKey,
-            webhook_secret: stripeWebhookSecret, // Corrected to snake_case as per some plugin versions
+            webhookSecret: stripeWebhookSecret,
             capture: true,
           },
         },
@@ -31,23 +31,61 @@ if (isStripeConfigured) {
 const modules = {
   [Modules.FILE]: {
     resolve: '@medusajs/medusa/file',
-    options: { /* Your S3 config... */ },
+    options: {
+      providers: [
+        {
+          resolve: '@medusajs/file-s3',
+          id: 's3',
+          options: {
+            file_url: process.env.DO_SPACE_URL,
+            access_key_id: process.env.DO_SPACE_ACCESS_KEY,
+            secret_access_key: process.env.DO_SPACE_SECRET_KEY,
+            region: process.env.DO_SPACE_REGION,
+            bucket: process.env.DO_SPACE_BUCKET,
+            endpoint: process.env.DO_SPACE_ENDPOINT,
+          },
+        },
+      ],
+    },
   },
   [Modules.NOTIFICATION]: {
     resolve: '@medusajs/medusa/notification',
-    options: { /* Your Resend config... */ },
+    options: {
+      providers: [
+        {
+          resolve: './src/modules/resend-notification',
+          id: 'resend-notification',
+          options: {
+            channels: ['email'],
+            apiKey: process.env.RESEND_API_KEY,
+            fromEmail: process.env.RESEND_FROM_EMAIL,
+            replyToEmail: process.env.RESEND_REPLY_TO_EMAIL,
+            toEmail: process.env.TO_EMAIL,
+            enableEmails: process.env.ENABLE_EMAIL_NOTIFICATIONS === 'true',
+          },
+        },
+      ],
+    },
   },
   [Modules.CACHE]: {
     resolve: '@medusajs/medusa/cache-redis',
-    options: { redisUrl: process.env.REDIS_URL },
+    options: {
+      redisUrl: process.env.REDIS_URL,
+    },
   },
   [Modules.EVENT_BUS]: {
     resolve: '@medusajs/medusa/event-bus-redis',
-    options: { redisUrl: process.env.REDIS_URL },
+    options: {
+      redisUrl: process.env.REDIS_URL,
+    },
   },
   [Modules.WORKFLOW_ENGINE]: {
     resolve: '@medusajs/medusa/workflow-engine-redis',
-    options: { redis: { url: process.env.REDIS_URL } },
+    options: {
+      redis: {
+        url: process.env.REDIS_URL,
+      },
+    },
   },
 };
 
@@ -75,7 +113,8 @@ const config = defineConfig({
   },
 });
 
-// Manually add the snake_case properties that the runtime server needs for CORS
+// Manually add the snake_case properties that the runtime server needs for CORS.
+// We cast the config object to `any` to bypass the strict TypeScript check for this one-time fix.
 (config.projectConfig as any).store_cors = process.env.STORE_CORS || '';
 (config.projectConfig as any).admin_cors = process.env.ADMIN_CORS || '';
 (config.projectConfig as any).auth_cors = process.env.AUTH_CORS || '';

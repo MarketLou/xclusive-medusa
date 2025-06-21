@@ -2,17 +2,23 @@ import { loadEnv, defineConfig, Modules } from '@medusajs/framework/utils';
 
 loadEnv(process.env.NODE_ENV || 'development', process.cwd());
 
-
-
+// This is the correct way to define the payment module
 const modules = {
   [Modules.PAYMENT]: {
-    resolve: "@medusajs/payment-stripe",
+    resolve: '@medusajs/medusa/payment', // Load the CORE payment module
     options: {
-      api_key: process.env.STRIPE_API_KEY,
-      webhook_secret: process.env.STRIPE_WEBHOOK_SECRET,
-      // We will keep capture: false as it's the safer default
-      capture: false, 
-    }
+      providers: [
+        {
+          resolve: '@medusajs/payment-stripe', // Load the Stripe provider
+          id: 'stripe', // Give it the ID 'stripe'
+          options: {
+            api_key: process.env.STRIPE_API_KEY,
+            webhook_secret: process.env.STRIPE_WEBHOOK_SECRET,
+            capture: false, // Keep our necessary bug fix
+          },
+        },
+      ],
+    },
   },
   [Modules.FILE]: {
     resolve: '@medusajs/medusa/file',

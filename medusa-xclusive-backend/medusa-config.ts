@@ -2,33 +2,18 @@ import { loadEnv, defineConfig, Modules } from '@medusajs/framework/utils';
 
 loadEnv(process.env.NODE_ENV || 'development', process.cwd());
 
-const dynamicModules = {};
 
-const stripeApiKey = process.env.STRIPE_API_KEY;
-const stripeWebhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
-
-const isStripeConfigured = Boolean(stripeApiKey) && Boolean(stripeWebhookSecret);
-
-if (isStripeConfigured) {
-  dynamicModules[Modules.PAYMENT] = {
-    resolve: '@medusajs/medusa/payment',
-    options: {
-      providers: [
-        {
-          resolve: '@medusajs/medusa/payment-stripe',
-          id: 'stripe',
-          options: {
-            apiKey: stripeApiKey,
-            webhook_secret: stripeWebhookSecret,
-            capture: false,
-          },
-        },
-      ],
-    },
-  };
-}
 
 const modules = {
+  [Modules.PAYMENT]: {
+    resolve: "@medusajs/payment-stripe",
+    options: {
+      api_key: process.env.STRIPE_API_KEY,
+      webhook_secret: process.env.STRIPE_WEBHOOK_SECRET,
+      // We will keep capture: false as it's the safer default
+      capture: false, 
+    }
+  },
   [Modules.FILE]: {
     resolve: '@medusajs/medusa/file',
     options: {
@@ -109,7 +94,6 @@ const config = defineConfig({
   },
   modules: {
     ...modules,
-    ...dynamicModules,
   },
 });
 

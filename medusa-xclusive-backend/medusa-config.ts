@@ -19,7 +19,7 @@ if (isStripeConfigured) {
           id: 'stripe',
           options: {
             apiKey: stripeApiKey,
-            webhook_secret: stripeWebhookSecret,
+            webhookSecret: stripeWebhookSecret,
             capture: true,
           },
         },

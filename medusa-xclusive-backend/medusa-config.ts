@@ -27,11 +27,14 @@ if (isStripeConfigured) {
         {
           resolve: '@medusajs/medusa/payment-stripe',
           id: 'stripe',
-          options: {
-            apiKey: stripeApiKey,
-            webhookSecret: stripeWebhookSecret,
-            capture: true,
-          },
+                      options: {
+              apiKey: stripeApiKey,
+              webhookSecret: stripeWebhookSecret,
+              capture: true,
+              // Add error handling for payment session cleanup
+              disableRetry: false,
+              retryOnFailure: true,
+            },
         },
       ],
     },

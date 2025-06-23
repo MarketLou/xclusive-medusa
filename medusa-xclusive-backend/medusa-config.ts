@@ -13,10 +13,13 @@ console.log('- API Key present:', Boolean(stripeApiKey));
 console.log('- Webhook Secret present:', Boolean(stripeWebhookSecret));
 console.log('- API Key length:', stripeApiKey?.length || 0);
 console.log('- Webhook Secret length:', stripeWebhookSecret?.length || 0);
+console.log('- Worker Mode:', process.env.MEDUSA_WORKER_MODE);
+console.log('- Node Environment:', process.env.NODE_ENV);
 
 const isStripeConfigured = Boolean(stripeApiKey) && Boolean(stripeWebhookSecret);
 
 if (isStripeConfigured) {
+  console.log('✅ Stripe is configured, adding payment module');
   dynamicModules[Modules.PAYMENT] = {
     resolve: '@medusajs/medusa/payment',
     options: {
@@ -33,6 +36,8 @@ if (isStripeConfigured) {
       ],
     },
   };
+} else {
+  console.log('❌ Stripe not configured - missing API key or webhook secret');
 }
 
 const modules = {

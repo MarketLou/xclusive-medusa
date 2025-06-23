@@ -7,6 +7,14 @@ const dynamicModules = {};
 const stripeApiKey = process.env.STRIPE_API_KEY;
 const stripeWebhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
+// Debug logging for Stripe configuration
+console.log('🔍 STRIPE DEBUG:', {
+  apiKeyExists: Boolean(stripeApiKey),
+  webhookSecretExists: Boolean(stripeWebhookSecret),
+  webhookSecretLength: stripeWebhookSecret?.length || 0,
+  webhookSecretPrefix: stripeWebhookSecret?.substring(0, 10) || 'UNDEFINED'
+});
+
 const isStripeConfigured = Boolean(stripeApiKey) && Boolean(stripeWebhookSecret);
 
 if (isStripeConfigured) {

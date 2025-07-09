@@ -76,7 +76,7 @@ const modules = {
             fromEmail: process.env.RESEND_FROM_EMAIL,
             replyToEmail: process.env.RESEND_REPLY_TO_EMAIL,
             toEmail: process.env.TO_EMAIL,
-            enableEmails: process.env.ENABLE_EMAIL_NOTIFICATIONS === 'true',
+            enableEmails: process.env.ENABLE_EMAIL_NOTIFICATIONS || 'false',
           },
         },
       ],

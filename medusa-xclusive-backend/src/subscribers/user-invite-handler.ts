@@ -5,10 +5,12 @@ import { ResendNotificationTemplates } from '../modules/resend-notification/serv
 export default async function userInviteHandler({
   event: { data },
   container,
-}: SubscriberArgs<{ id: string; token: string; user_email: string }>) {
+}: SubscriberArgs<any>) {
   
   // --- Enhanced logging for debugging ---
   console.log('✅ Invite handler triggered for invite event');
+  console.log("🔍 FULL EVENT DATA:", JSON.stringify(data, null, 2));
+  console.log("📊 Event data keys:", Object.keys(data || {}));
   console.log("📨 Preparing to send invite email to:", data.user_email);
   console.log("🔑 Token data:", { token: data.token?.substring(0, 10) + '...' });
 

@@ -6,6 +6,7 @@ import { Resend } from 'resend';
 import { validateModuleOptions } from '../../utils/validate-module-options';
 import { OrderPlacedEmailTemplate } from './email-templates/order-placed';
 import { ResetPasswordEmailTemplate } from './email-templates/reset-password';
+import InviteCreatedEmail from './email-templates/invite-created';
 
 type ModuleOptions = {
   apiKey: string;
@@ -17,7 +18,8 @@ type ModuleOptions = {
 
 export enum ResendNotificationTemplates {
   ORDER_PLACED = 'order-placed',
-  RESET_PASSWORD = 'reset-password'
+  RESET_PASSWORD = 'reset-password',
+  INVITE_CREATED = 'invite-created'
 }
 
 class ResendNotificationProviderService extends AbstractNotificationProviderService {
@@ -42,7 +44,7 @@ class ResendNotificationProviderService extends AbstractNotificationProviderServ
 
     const { data, error } = await this.resend.emails.send({
       from: this.options.fromEmail,
-      reply_to: this.options.replyToEmail,
+      replyTo: this.options.replyToEmail,
       to: [toEmail ? toEmail : this.options.toEmail],
       subject: subject,
       react: body
@@ -79,6 +81,21 @@ class ResendNotificationProviderService extends AbstractNotificationProviderServ
     );
   }
 
+  // Send invite created mail
+  private async sendInviteCreatedMail(notification: ProviderSendNotificationDTO) {
+    const inviteData = {
+      user_email: notification?.data?.user_email as string,
+      token: notification?.data?.token as string,
+    };
+    const dynamicSubject = notification?.data?.subject as string || 'You have been invited!';
+
+    return await this.sendMail(
+      dynamicSubject,
+      InviteCreatedEmail({ data: inviteData }),
+      notification.to
+    );
+  }
+
   async send(notification: ProviderSendNotificationDTO) {
     switch (notification.template) {
       case ResendNotificationTemplates.ORDER_PLACED.toString():
@@ -86,6 +103,9 @@ class ResendNotificationProviderService extends AbstractNotificationProviderServ
 
        case ResendNotificationTemplates.RESET_PASSWORD.toString():
         return await this.sendResetPasswordMail(notification);
+
+       case ResendNotificationTemplates.INVITE_CREATED.toString():
+        return await this.sendInviteCreatedMail(notification);
     }
 
     return {};

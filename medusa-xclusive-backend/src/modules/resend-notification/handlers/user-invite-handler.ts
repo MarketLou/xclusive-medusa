@@ -41,4 +41,8 @@ export default async function userInviteHandler({
 export const config: SubscriberConfig = {
   // --- Step 3: Listen for BOTH events ---
   event: ["invite.created", "invite.resent"],
+  // --- Step 4: Add context for logging
+  context: {
+    subscriberID: "user-invite-handler",
+  },
 }; 

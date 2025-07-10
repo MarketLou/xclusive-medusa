@@ -11,7 +11,7 @@ interface InviteCreatedEmailProps {
 const baseUrl = process.env.BACKEND_URL || 'https://xclusive-medusa-production.up.railway.app';
 
 const InviteCreatedEmail = ({ data }: InviteCreatedEmailProps) => {
-  const inviteLink = `${baseUrl}/admin/invites/accept?token=${data.token}`;
+  const inviteLink = `${baseUrl}/app/invite?token=${data.token}`;
 
   return (
     <div>

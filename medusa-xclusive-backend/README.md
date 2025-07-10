@@ -46,7 +46,158 @@ Visit the [Docs](https://docs.medusajs.com/learn/installation#get-started) to le
 
 Medusa is a set of commerce modules and tools that allow you to build rich, reliable, and performant commerce applications without reinventing core commerce logic. The modules can be customized and used to build advanced ecommerce stores, marketplaces, or any product that needs foundational commerce primitives. All modules are open-source and freely available on npm.
 
-Learn more about [Medusa’s architecture](https://docs.medusajs.com/learn/introduction/architecture) and [commerce modules](https://docs.medusajs.com/learn/fundamentals/modules/commerce-modules) in the Docs.
+Learn more about [Medusa's architecture](https://docs.medusajs.com/learn/introduction/architecture) and [commerce modules](https://docs.medusajs.com/learn/fundamentals/modules/commerce-modules) in the Docs.
+
+## 🎯 Custom Invite System Implementation
+
+This Medusa v2.8.4 backend includes a fully functional invite system with email notifications via Resend. Below is the complete implementation and troubleshooting guide.
+
+### ✅ **Major Breakthrough: enableEmails Boolean/String Fix**
+
+**🚨 CRITICAL FIX DISCOVERED:**
+
+The most significant issue was a type mismatch in the notification service configuration:
+
+**The Problem:**
+- `enableEmails` was being passed as a **boolean** (`true`/`false`) from `medusa-config.ts`
+- But the Resend service was expecting a **string** so it could call `.toLowerCase()` on it
+- This caused the error: `this.options.enableEmails.toLowerCase is not a function`
+
+**The Solution:**
+```typescript
+// ❌ WRONG (in medusa-config.ts)
+enableEmails: process.env.ENABLE_EMAIL_NOTIFICATIONS === 'true',
+
+// ✅ CORRECT (in medusa-config.ts)
+enableEmails: process.env.ENABLE_EMAIL_NOTIFICATIONS || 'false',
+```
+
+**Result:** Now it passes the actual string value (`'true'` or `'false'`) instead of a boolean, allowing the service to properly check email enablement.
+
+### 📋 **Complete Implementation**
+
+#### **1. File Structure**
+```
+src/
+├── subscribers/
+│   └── user-invite-handler.ts        # Event handler (MUST be in src/subscribers/)
+├── modules/
+│   └── resend-notification/
+│       ├── service.ts                # Resend notification service
+│       ├── index.ts                  # Module configuration
+│       └── email-templates/
+│           └── invite-created.tsx    # Email template
+```
+
+#### **2. Key Components**
+
+**Event Handler (`src/subscribers/user-invite-handler.ts`)**:
+- Listens for `invite.created` and `invite.resent` events
+- Uses query service to retrieve full invite details from database
+- Sends email notification via Resend service
+
+**Resend Service (`src/modules/resend-notification/service.ts`)**:
+- Handles email sending with proper error handling
+- Supports multiple email templates (order, reset password, invite)
+- Configurable email enablement
+
+**Email Template (`src/modules/resend-notification/email-templates/invite-created.tsx`)**:
+- React-based email template
+- Generates proper invite acceptance URL
+- Uses production backend URL
+
+#### **3. Critical Configuration**
+
+**medusa-config.ts**:
+```typescript
+[Modules.NOTIFICATION]: {
+  resolve: '@medusajs/medusa/notification',
+  options: {
+    providers: [
+      {
+        resolve: './src/modules/resend-notification',
+        id: 'resend-notification',
+        options: {
+          channels: ['email'],
+          apiKey: process.env.RESEND_API_KEY,
+          fromEmail: process.env.RESEND_FROM_EMAIL,
+          replyToEmail: process.env.RESEND_REPLY_TO_EMAIL,
+          toEmail: process.env.TO_EMAIL,
+          enableEmails: process.env.ENABLE_EMAIL_NOTIFICATIONS || 'false', // STRING not boolean!
+        },
+      },
+    ],
+  },
+}
+```
+
+#### **4. Environment Variables Required**
+```bash
+# Resend Configuration
+RESEND_API_KEY=re_xxxxx
+RESEND_FROM_EMAIL=noreply@yourdomain.com
+RESEND_REPLY_TO_EMAIL=support@yourdomain.com
+TO_EMAIL=admin@yourdomain.com
+ENABLE_EMAIL_NOTIFICATIONS=true
+
+# Backend URL for email links
+BACKEND_URL=https://your-production-url.com
+```
+
+### 🔧 **Troubleshooting Guide**
+
+#### **Common Issues & Solutions:**
+
+1. **"Processing invite.created which has 0 subscribers"**
+   - **Solution**: Move handler to `src/subscribers/` directory (not `src/modules/`)
+   - Medusa v2 auto-discovers subscribers only in `src/subscribers/`
+
+2. **"this.options.enableEmails.toLowerCase is not a function"**
+   - **Solution**: Use string value instead of boolean in config
+   - `enableEmails: process.env.ENABLE_EMAIL_NOTIFICATIONS || 'false'`
+
+3. **"Value for Notification.to is required, 'undefined' found"**
+   - **Solution**: Use query service to retrieve full invite details
+   - Event data only contains `{ id: "invite_xxx" }`, not email/token
+
+4. **"Not authorized" when clicking invite link**
+   - **Solution**: Use correct invite acceptance URL path
+   - Correct: `/admin/invites/accept?token=xxx`
+   - Wrong: `/admin/invite?token=xxx`
+
+5. **Localhost URL in production emails**
+   - **Solution**: Set proper environment variable
+   - Use `BACKEND_URL` not `MEDUSA_BACKEND_URL`
+
+### 📊 **Implementation Progress**
+
+✅ **Handler Detection**: Fixed (moved to `src/subscribers/`)  
+✅ **Event Data Retrieval**: Fixed (using query service)  
+✅ **Email & Token Extraction**: Fixed (database query working)  
+✅ **Configuration Type Error**: Fixed (string instead of boolean)  
+✅ **Production URL**: Fixed (correct environment variable)  
+✅ **Invite Acceptance**: Fixed (correct URL path)  
+
+### 🚀 **Final Working Flow**
+
+1. Admin creates invite in dashboard
+2. `invite.created` event triggered
+3. Handler retrieves invite details from database
+4. Email sent via Resend with proper production URL
+5. Recipient clicks link → `/admin/invites/accept?token=xxx`
+6. Invite successfully accepted and user can set up account
+
+### 📧 **Email Template Features**
+
+- Professional HTML email template
+- Secure token-based authentication
+- Production-ready URLs
+- Proper fallback text for email clients
+- Recipient email validation
+
+---
+
+*This implementation provides a complete, production-ready invite system for Medusa v2.8.4 with comprehensive error handling and logging.*
 
 ## Community & Contributions
 

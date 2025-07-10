@@ -8,10 +8,10 @@ interface InviteCreatedEmailProps {
   };
 }
 
-const baseUrl = process.env.MEDUSA_BACKEND_URL || 'http://localhost:9000';
+const baseUrl = process.env.BACKEND_URL || 'https://xclusive-medusa-production.up.railway.app';
 
 const InviteCreatedEmail = ({ data }: InviteCreatedEmailProps) => {
-  const inviteLink = `${baseUrl}/admin/invite?token=${data.token}`;
+  const inviteLink = `${baseUrl}/admin/invites/accept?token=${data.token}`;
 
   return (
     <div>

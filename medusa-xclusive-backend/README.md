@@ -48,9 +48,9 @@ Medusa is a set of commerce modules and tools that allow you to build rich, reli
 
 Learn more about [Medusa's architecture](https://docs.medusajs.com/learn/introduction/architecture) and [commerce modules](https://docs.medusajs.com/learn/fundamentals/modules/commerce-modules) in the Docs.
 
-## 🎯 Custom Invite System Implementation
+## 🎯 Custom Invite System Implementation ✅ COMPLETED & WORKING
 
-This Medusa v2.8.4 backend includes a fully functional invite system with email notifications via Resend. Below is the complete implementation and troubleshooting guide.
+This Medusa v2.8.4 backend includes a **fully functional invite system** with email notifications via Resend. The system is now **production-ready and working end-to-end**. Below is the complete implementation and troubleshooting guide.
 
 ### ✅ **Major Breakthrough: enableEmails Boolean/String Fix**
 
@@ -73,6 +73,28 @@ enableEmails: process.env.ENABLE_EMAIL_NOTIFICATIONS || 'false',
 ```
 
 **Result:** Now it passes the actual string value (`'true'` or `'false'`) instead of a boolean, allowing the service to properly check email enablement.
+
+### ✅ **Final Breakthrough: Admin Dashboard vs API Path**
+
+**🎯 CRITICAL DISCOVERY:**
+
+The final issue was using the wrong URL path for invite acceptance:
+
+**The Problem:**
+- Email template was generating API paths: `/admin/invites/accept?token=xxx`
+- But invite acceptance is handled by the **admin dashboard UI**, not the API
+- This caused "Unauthorized" errors when users clicked the invite links
+
+**The Solution:**
+```typescript
+// ❌ WRONG (API path)
+const inviteLink = `${baseUrl}/admin/invites/accept?token=${data.token}`;
+
+// ✅ CORRECT (Admin dashboard path)
+const inviteLink = `${baseUrl}/app/invite?token=${data.token}`;
+```
+
+**Result:** Invite links now properly redirect to the admin dashboard invite acceptance page, allowing users to successfully accept invites and create accounts.
 
 ### 📋 **Complete Implementation**
 
@@ -161,31 +183,34 @@ BACKEND_URL=https://your-production-url.com
    - Event data only contains `{ id: "invite_xxx" }`, not email/token
 
 4. **"Not authorized" when clicking invite link**
-   - **Solution**: Use correct invite acceptance URL path
-   - Correct: `/admin/invites/accept?token=xxx`
-   - Wrong: `/admin/invite?token=xxx`
+   - **Solution**: Use admin dashboard path instead of API path
+   - Correct: `/app/invite?token=xxx` (admin dashboard)
+   - Wrong: `/admin/invites/accept?token=xxx` (API path)
 
 5. **Localhost URL in production emails**
    - **Solution**: Set proper environment variable
    - Use `BACKEND_URL` not `MEDUSA_BACKEND_URL`
 
-### 📊 **Implementation Progress**
+### 📊 **Implementation Progress - ALL COMPLETED ✅**
 
 ✅ **Handler Detection**: Fixed (moved to `src/subscribers/`)  
 ✅ **Event Data Retrieval**: Fixed (using query service)  
 ✅ **Email & Token Extraction**: Fixed (database query working)  
 ✅ **Configuration Type Error**: Fixed (string instead of boolean)  
 ✅ **Production URL**: Fixed (correct environment variable)  
-✅ **Invite Acceptance**: Fixed (correct URL path)  
+✅ **Invite Acceptance**: Fixed (admin dashboard path)  
+✅ **End-to-End Testing**: WORKING IN PRODUCTION
 
-### 🚀 **Final Working Flow**
+### 🚀 **Final Working Flow - VERIFIED WORKING**
 
-1. Admin creates invite in dashboard
-2. `invite.created` event triggered
-3. Handler retrieves invite details from database
-4. Email sent via Resend with proper production URL
-5. Recipient clicks link → `/admin/invites/accept?token=xxx`
-6. Invite successfully accepted and user can set up account
+1. Admin creates invite in dashboard ✅
+2. `invite.created` event triggered ✅
+3. Handler retrieves invite details from database ✅
+4. Email sent via Resend with proper production URL ✅
+5. Recipient clicks link → `https://your-domain.com/app/invite?token=xxx` ✅
+6. Invite successfully accepted and user can set up account ✅
+
+**Status: PRODUCTION READY** 🎉
 
 ### 📧 **Email Template Features**
 
